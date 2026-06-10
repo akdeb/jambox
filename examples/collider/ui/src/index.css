@@ -1,0 +1,111 @@
+@import '../../../common/react_ui/shared.css';
+
+:root {
+  --color-bg:       #f7f8fb;
+  --color-fg:       #202124;
+  --color-surface:  #ffffff;
+  --color-raised:   #e8ecf3;
+  --color-border:   #d6dbe5;
+  --color-muted:    rgba(32, 33, 36, 0.58);
+  --color-accent:   #1769e0;
+  --color-hover:    #dce3ee;
+  --color-menu-bg:  #ffffff;
+  --color-menu-fg:  #202124;
+  --color-menu-selected: rgba(23, 105, 224, 0.12);
+  --color-menu-selected-hover: rgba(23, 105, 224, 0.18);
+  --color-menu-hover: rgba(32, 33, 36, 0.07);
+  --color-backdrop: rgba(32, 33, 36, 0.22);
+  --color-shadow:   rgba(60, 64, 67, 0.18);
+  --color-play-bg:  #202124;
+  --color-play-fg:  #ffffff;
+  --color-prompt-label-bg: rgba(255, 255, 255, 0.86);
+  --color-prompt-label-fg: #202124;
+}
+
+.lil-root {
+  top: auto !important;
+  bottom: 0;
+  max-height: 50vh;
+}
+
+/* ─── Tooltip (data-tip) ──────────────────────────────────────────── */
+[data-tip] {
+  position: relative;
+}
+[data-tip]::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: var(--color-fg);
+  color: var(--color-surface);
+  font-family: 'Google Sans Text', system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+[data-tip]:hover::after {
+  opacity: 1;
+  transition-delay: 500ms;
+}
+/* Right-anchored tooltip — prevents clipping off right edge */
+[data-tip-align="right"]::after {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+
+body {
+  font-family: system-ui, sans-serif;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+* {
+  user-select: none;
+  -webkit-user-select: none;
+}
+input, textarea {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+
+/* Range slider styling — matches PromptRow slider, gray bg, no fill */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 20px;
+  border-radius: 10px;
+  outline: none;
+  background: var(--color-raised);
+  cursor: grab;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-surface);
+  border: none;
+  box-shadow: 0 1px 3px var(--color-shadow);
+}
+
+@keyframes pulse-warn {
+  0%, 100% { background: var(--color-surface); }
+  50%      { background: #dce3ee; }
+}
+input[type="range"].speed-zero::-webkit-slider-thumb {
+  animation: pulse-warn 1.5s linear infinite;
+}
