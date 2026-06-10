@@ -2,11 +2,11 @@
 
 <img src="assets/transparent-circle-logo.png" alt="ELATO logo" width="140" />
 
-# Musical AI Toys with ELATO
+# MusicBox - Realtime AI Music on ESP32
 
-### Local musical AI toys powered by your Mac, Magenta RealTime, MLX, and ESP32
+### Local musical AI gadgets powered by your Mac, Magenta RealTime, MLX, and ESP32
 
-*Musical AI Toys with ELATO is a local-first macOS app for creating realtime generative music and streaming it to an ESP32 speaker toy. Touch the ESP32 to interrupt playback, speak a request like "add drums" or "make it lo-fi", and the Mac uses local Whisper STT plus Qwen3.5 tool calls to update the musical bubbles before resuming playback.*
+*Musical AI gadgets with ELATO is a local-first macOS app for creating realtime generative music and streaming it to an ESP32 speaker toy. Touch the ESP32 to interrupt playback, speak a request like "add drums" or "make it lo-fi", and the Mac uses local Whisper STT plus Qwen3.5 tool calls to update the musical bubbles before resuming playback.*
 
 **Apple Silicon · Magenta RealTime 2 · MLX · React · ESP32-S3 · Whisper ASR · Qwen3.5 Tool Calls · Opus Audio**
 
@@ -15,7 +15,7 @@
 [![Model](https://img.shields.io/badge/Model-Magenta%20RT%202-blue)](https://magenta.withgoogle.com/mrt2)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green)](LICENSE)
 
-<img src="assets/app-view.png" alt="Musical AI Toys with ELATO app" width="640" />
+<img src="assets/app-view.png" alt="Musical AI Toys with ELATO app" width="100%" />
 
 </div>
 
