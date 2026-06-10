@@ -204,7 +204,7 @@ function App() {
 
   const nextIdRef = useRef(3);
   const nextColorRef = useRef(3);
-  /** Index into SHUFFLED_SUGGESTIONS — starts at 3 because the first 3 are used for initial prompts. */
+  /** Index into SHUFFLED_SUGGESTIONS; starts at 3 because the first 3 are used for initial prompts. */
   const deckIndexRef = useRef(3);
 
 
@@ -255,7 +255,7 @@ function App() {
 
   const sendPrompts = useCallback(() => {
     const weights = calculateWeights(listenerRef.current, promptsRef.current);
-    // Build engine payload — audio prompt must be at index 0 (native hardcodes it there)
+    // Build engine payload; audio prompt must be at index 0 (native hardcodes it there)
     const data: { text: string; weight: number }[] = Array.from({ length: MAX_ENGINE_PROMPTS }, () => ({ text: '', weight: 0 }));
     const audioIdx = promptsRef.current.findIndex(p => p.isAudio);
     const slots: { prompt: PromptNode; weight: number }[] = [];
@@ -292,7 +292,7 @@ function App() {
   // ─── Throttled prompt sending ─────────────────────────────────────
   // Decouple engine IPC from the 60fps animation loop. Position changes
   // from physics update refs instantly (so the visual is smooth), but we
-  // only push weight updates to the native engine at ~10Hz — fast enough
+  // only push weight updates to the native engine at ~10Hz, fast enough
   // for perceptible audio blending, slow enough to avoid flooding the
   // TFLite quantizer with redundant invocations.
   const sendThrottleRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -312,7 +312,7 @@ function App() {
       sendPrompts();
       lastSendTimeRef.current = now;
     } else {
-      // Trailing edge — guarantees the final position is always sent
+      // Trailing edge: guarantees the final position is always sent
       sendThrottleRef.current = setTimeout(() => {
         sendPrompts();
         lastSendTimeRef.current = Date.now();
@@ -508,7 +508,7 @@ function App() {
     <div className="collider-app-shell">
       <div className="elato-wordmark">ELATO</div>
 
-      {/* Transport — bottom left */}
+      {/* Transport: bottom left */}
       <div className="transport-dock">
         <TransportControls
           isPlaying={speakerStreaming}
@@ -540,7 +540,7 @@ function App() {
         </Tooltip>
       </div>
 
-      {/* Settings — top right */}
+      {/* Settings: top right */}
       <div style={{
         position: 'fixed',
         top: 'var(--app-padding)',
@@ -564,7 +564,7 @@ function App() {
         </IconButton>
       </div>
 
-      {/* Audio Meter — left edge, vertical, centered */}
+      {/* Audio Meter: left edge, vertical, centered */}
       {/* <div style={{
         position: 'fixed',
         right: '34px',
@@ -577,7 +577,7 @@ function App() {
         <AudioMeter leftLevel={audioLevel} rightLevel={audioLevel} width="120px" height="14px" />
       </div> */}
 
-      {/* Top spacer — keeps prompt surface below fixed header elements */}
+      {/* Top spacer: keeps prompt surface below fixed header elements */}
       <div style={{ height: 'calc(var(--app-padding) + 56px + var(--app-padding))', flexShrink: 0 }} />
 
       {/* PromptSurface */}
@@ -649,7 +649,7 @@ function App() {
 
       {/* ── Bottom bar ── */}
       <div style={{ display: 'flex', alignItems: 'center', padding: 'var(--app-padding)', paddingRight: 'calc(var(--app-padding) + var(--instrument-rail-width) + 16px)', flexShrink: 0, gap: '12px', position: 'relative', justifyContent: 'flex-end' }}>
-        {/* Speed slider — absolute, aligned to the right of the bar (left of Add Prompt) */}
+        {/* Speed slider: absolute, aligned to the right of the bar (left of Add Prompt) */}
         <div
           className={`speed-slider-dock${hasThrown ? ' visible' : ''}`}
           style={{

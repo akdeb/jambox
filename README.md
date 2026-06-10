@@ -2,20 +2,20 @@
 
 <img src="assets/transparent-circle-logo.png" alt="ELATO logo" width="140" />
 
-# MusicBox - Realtime AI Music on ESP32
+# JamBox by ELATO
 
-### Local musical AI gadgets powered by your Mac, Magenta RealTime, MLX, and ESP32
+### An app and gadget that brings your realtime music creations to life, powered by your Mac, Magenta RealTime, MLX, and ESP32
 
-*Musical AI gadgets with ELATO is a local-first macOS app for creating realtime generative music and streaming it to an ESP32 speaker toy. Touch the ESP32 to interrupt playback, speak a request like "add drums" or "make it lo-fi", and the Mac uses local Whisper STT plus Qwen3.5 tool calls to update the musical bubbles before resuming playback.*
+*JamBox by ELATO is a local-first macOS app for creating realtime generative music and streaming it to an ESP32 speaker gadget. Touch the ESP32 to interrupt playback, speak a request like "add drums" or "make it lo-fi", and the Mac uses local Whisper STT plus Qwen3.5 tool calls to update the musical bubbles before resuming playback.*
 
 **Apple Silicon · Magenta RealTime 2 · MLX · React · ESP32-S3 · Whisper ASR · Qwen3.5 Tool Calls · Opus Audio**
 
-[![App](https://img.shields.io/badge/App-C%2B%2B%20%2B%20React-yellow)](examples/collider)
+[![App](https://img.shields.io/badge/App-C%2B%2B%20&React-yellow)](examples/collider)
 [![Hardware](https://img.shields.io/badge/Hardware-ESP32--S3-red?logo=espressif)](arduino)
 [![Model](https://img.shields.io/badge/Model-Magenta%20RT%202-blue)](https://magenta.withgoogle.com/mrt2)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green)](LICENSE)
 
-<img src="assets/app-view.png" alt="Musical AI Toys with ELATO app" width="100%" />
+<img src="assets/app-view.png" alt="JamBox by ELATO app" width="100%" />
 
 </div>
 
@@ -23,9 +23,9 @@
 
 This repo is built on [Magenta RealTime 2](https://magenta.withgoogle.com/mrt2), an open-weights realtime music generation model. The main app in this fork is the Collider-based macOS app:
 
-- `examples/collider/` — native macOS app, React UI, websocket server, ESP32 audio streaming, voice-command agent.
-- `arduino/` — ESP32-S3 firmware for WiFi discovery, touch interrupt, mic streaming, Opus decode, and speaker output.
-- `core/` and `magenta_rt/` — Magenta RealTime C++ and Python inference code.
+- `examples/collider/`: native macOS app, React UI, websocket server, ESP32 audio streaming, voice-command agent.
+- `arduino/`: ESP32-S3 firmware for WiFi discovery, touch interrupt, mic streaming, Opus decode, and speaker output.
+- `core/` and `magenta_rt/`: Magenta RealTime C++ and Python inference code.
 
 ## Why It Is Fun
 
@@ -125,13 +125,13 @@ PY
 ```bash
 cmake . -B build
 cmake --build build --target deploy_mrt2_collider -j10
-open ~/Applications/"Musical AI Toys with ELATO.app"
+open ~/Applications/"JamBox by ELATO.app"
 ```
 
 The deploy target builds the React UI, signs the app locally, bundles `voice_agent.py`, and copies the app to:
 
 ```text
-~/Applications/Musical AI Toys with ELATO.app
+~/Applications/JamBox by ELATO.app
 ```
 
 ## ESP32 Setup
@@ -163,7 +163,7 @@ The Mac app advertises itself over mDNS and runs the websocket server for the ES
 
 ## How To Use It
 
-1. Open `Musical AI Toys with ELATO.app`.
+1. Open `JamBox by ELATO.app`.
 2. Wait for the model to load.
 3. Click the large play button to stream music to the ESP32.
 4. Click the laptop icon to enable or disable local Mac audio output.
@@ -198,7 +198,7 @@ musical-ai-toys/
 ├── arduino/                  # ESP32-S3 firmware
 ├── core/                     # C++ realtime inference engine
 ├── examples/
-│   ├── collider/             # Musical AI Toys with ELATO macOS app
+│   ├── collider/             # JamBox by ELATO macOS app
 │   │   ├── ui/               # React UI
 │   │   └── voice_agent.py    # Whisper + Qwen3.5 tool-call loop
 │   ├── common/               # Shared native/React app code

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Collider view controller — hosts the Collider React UI in a WKWebView.
+// Collider view controller: hosts the Collider React UI in a WKWebView.
 // Simplified from MagentaRTAppController: single prompt, MIDI/waveform visualization.
 
 #import "ColliderAppController.h"
@@ -183,7 +183,7 @@ static BOOL isDevServerRunning(void) {
         [self.view addSubview:_webView];
 
         if (isDevServerRunning()) {
-            NSLog(@"Collider: Vite dev server detected on port %d — loading with HMR", kDevServerPort);
+            NSLog(@"Collider: Vite dev server detected on port %d, loading with HMR", kDevServerPort);
             [_webView loadRequest:[NSURLRequest requestWithURL:
                 [NSURL URLWithString:[NSString stringWithFormat:@"http://localhost:%d", kDevServerPort]]]];
         } else {
@@ -240,7 +240,7 @@ static BOOL isDevServerRunning(void) {
         stateUpdate[@"activeNotes"] = notes;
     }
 
-    // Send audio level every frame (single scalar — negligible bridge cost)
+    // Send audio level every frame (single scalar, negligible bridge cost)
     if (shared) {
         int head = shared->vizHead.load(std::memory_order_acquire);
         static constexpr int WINDOW = 2048; // ~42ms at 48kHz
@@ -266,7 +266,7 @@ static BOOL isDevServerRunning(void) {
         };
     }
 
-    // Params — send only changed values
+    // Params: send only changed values
     NSMutableDictionary* params = [NSMutableDictionary dictionary];
     int addresses[] = {0,1,3,4,5,6,7,8,9,32,39,48};
     for (int addr : addresses) {

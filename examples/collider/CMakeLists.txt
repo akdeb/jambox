@@ -57,7 +57,7 @@ set_target_properties(mrt2_collider PROPERTIES
     MACOSX_BUNDLE TRUE
     MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/ColliderInfo.plist.in"
     MACOSX_BUNDLE_EXECUTABLE_NAME MRT2_Collider
-    MACOSX_BUNDLE_BUNDLE_NAME "Musical AI Toys with ELATO"
+    MACOSX_BUNDLE_BUNDLE_NAME "JamBox by ELATO"
     MACOSX_BUNDLE_ICON_FILE "AppIcon.icns"
     XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.google.mrt2.collider"
 )
@@ -99,16 +99,18 @@ add_custom_target(deploy_mrt2_collider
         "$ENV{HOME}/Applications/MRT2 - Collider.app"
     COMMAND ${CMAKE_COMMAND} -E remove_directory
         "$ENV{HOME}/Applications/Musical AI Toys with ELATO.app"
+    COMMAND ${CMAKE_COMMAND} -E remove_directory
+        "$ENV{HOME}/Applications/JamBox by ELATO.app"
     COMMAND ditto
         "$<TARGET_BUNDLE_DIR:mrt2_collider>"
-        "$ENV{HOME}/Applications/Musical AI Toys with ELATO.app"
-    COMMENT "Building and deploying Musical AI Toys with ELATO standalone app"
+        "$ENV{HOME}/Applications/JamBox by ELATO.app"
+    COMMENT "Building and deploying JamBox by ELATO standalone app"
     VERBATIM
 )
 
-# Notarize the deployed Musical AI Toys with ELATO.app (requires Developer ID).
+# Notarize the deployed JamBox by ELATO.app (requires Developer ID).
 magentart_add_notarize_target(notarize_mrt2_collider
-    APP "$ENV{HOME}/Applications/Musical AI Toys with ELATO.app"
+    APP "$ENV{HOME}/Applications/JamBox by ELATO.app"
     DEPENDS deploy_mrt2_collider
     ZIP_NAME "MRT2_Collider.zip"
 )

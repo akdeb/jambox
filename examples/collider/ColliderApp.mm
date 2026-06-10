@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Collider — standalone app entry point.
+// Collider: standalone app entry point.
 // Reuses RealtimeRunner, AVAudioEngine, CoreMIDI from Magenta RT standalone.
 // Adds shared state for MIDI note visualization and audio waveform display.
 
@@ -55,7 +55,7 @@ enum {
 };
 
 // With a device-side volume slider now driving loudness, the pre-boost only
-// needs to add a little presence — keep it small so the limiter stays out of
+// needs to add a little presence; keep it small so the limiter stays out of
 // the way and complex material (e.g. piano) isn't dynamically squashed.
 static constexpr float kEsp32OutputBoostDb = 2.0f;
 static constexpr float kEsp32OutputCeiling = 0.89f;
@@ -1223,7 +1223,7 @@ static NSSlider* makeSlider(CGFloat x, CGFloat y, CGFloat w, double min, double 
     // Restore saved parameters immediately so the engine has them from start
     [_controller restoreSavedParams];
 
-    // Start bypassed — user must press Play
+    // Start bypassed; user must press Play
     _engine.set_bypass(true);
     _localOutputEnabled.store(false, std::memory_order_relaxed);
     _engine.set_cfg_musiccoca(kColliderDefaultCfgMusicCoCa);
@@ -1246,7 +1246,7 @@ static NSSlider* makeSlider(CGFloat x, CGFloat y, CGFloat w, double min, double 
                                                     NSWindowStyleMaskResizable
                                             backing:NSBackingStoreBuffered
                                               defer:NO];
-    _window.title = @"Musical AI Toys with ELATO";
+    _window.title = @"JamBox by ELATO";
     _window.restorable = NO;
     _window.contentMinSize = NSMakeSize(310, 310);
     _window.contentViewController = _controller;
@@ -1460,11 +1460,11 @@ static NSSlider* makeSlider(CGFloat x, CGFloat y, CGFloat w, double min, double 
 
     NSMenuItem* appMenuItem = [[NSMenuItem alloc] init];
     NSMenu* appMenu = [[NSMenu alloc] init];
-    [appMenu addItemWithTitle:@"About Musical AI Toys with ELATO" action:@selector(orderFrontStandardAboutPanel:) keyEquivalent:@""];
+    [appMenu addItemWithTitle:@"About JamBox by ELATO" action:@selector(orderFrontStandardAboutPanel:) keyEquivalent:@""];
     [appMenu addItem:[NSMenuItem separatorItem]];
     [appMenu addItemWithTitle:@"Settings..." action:@selector(menuShowSettings:) keyEquivalent:@","];
     [appMenu addItem:[NSMenuItem separatorItem]];
-    [appMenu addItemWithTitle:@"Quit Musical AI Toys with ELATO" action:@selector(terminate:) keyEquivalent:@"q"];
+    [appMenu addItemWithTitle:@"Quit JamBox by ELATO" action:@selector(terminate:) keyEquivalent:@"q"];
     appMenuItem.submenu = appMenu;
     [menuBar addItem:appMenuItem];
 
