@@ -15,7 +15,7 @@
  */
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Turtle, Rabbit } from 'lucide-react';
+import { Turtle, Rabbit, Library, Bookmark } from 'lucide-react';
 import IconButton from '@mui/material/IconButton';
 import Settings from '@mui/icons-material/Settings';
 import Replay from '@mui/icons-material/Replay';
@@ -41,6 +41,7 @@ declare global {
 const post = (msg: any) => window.webkit?.messageHandlers?.auHost?.postMessage(msg);
 
 const MAX_ENGINE_PROMPTS = 6;
+const SAVED_LIBRARY_KEY = 'magenta-collider-saved-states';
 
 const INSTRUMENTS = [
   { icon: '1f3b7', name: 'Saxophone', prompt: 'Saxophone' },
@@ -70,6 +71,14 @@ type VoiceToolCall = {
 };
 
 type VoiceStatus = 'idle' | 'listening' | 'processing' | 'thinking' | 'done' | 'error';
+
+type SavedColliderState = {
+  id: string;
+  name: string;
+  savedAt: number;
+  prompts: PromptNode[];
+  listener: ListenerNode;
+};
 
 // ─── Defaults ────────────────────────────────────────────────────────────────
 
@@ -121,6 +130,38 @@ function buildInitialLayout(w: number, h: number, pad = 60) {
   return { prompts, listener };
 }
 
+function titleCasePrompt(text: string) {
+  const instrument = INSTRUMENTS.find(item =>
+    item.prompt.toLowerCase() === text.toLowerCase() ||
+    item.name.toLowerCase() === text.toLowerCase()
+  );
+  if (instrument) return instrument.prompt;
+
+  return text
+    .split(/\s+/)
+    .filter(Boolean)
+    .map(word => {
+      if (word === word.toUpperCase() && word.length > 1) return word;
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    })
+    .join(' ');
+}
+
+function readSavedLibrary(): SavedColliderState[] {
+  try {
+    const raw = window.localStorage.getItem(SAVED_LIBRARY_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeSavedLibrary(items: SavedColliderState[]) {
+  window.localStorage.setItem(SAVED_LIBRARY_KEY, JSON.stringify(items));
+}
+
 // ─── App ─────────────────────────────────────────────────────────────────────
 
 function App() {
@@ -132,6 +173,7 @@ function App() {
   const [speakerStreaming, setSpeakerStreaming] = useState(false);
   const [voiceStatus, setVoiceStatus] = useState<VoiceStatus>('idle');
   const [voiceTranscript, setVoiceTranscript] = useState('');
+  const [physicsResetKey, setPhysicsResetKey] = useState(0);
   const [audioLevel, setAudioLevel] = useState(0);
   const [sliderPos, setSliderPos] = useState(0.5);
   const physicsSpeed = sliderToSpeed(sliderPos);
@@ -153,6 +195,8 @@ function App() {
 
   // Settings Drawer states
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isLibraryOpen, setIsLibraryOpen] = useState(false);
+  const [savedItems, setSavedItems] = useState<SavedColliderState[]>(() => readSavedLibrary());
   const [paramsState, setParamsState] = useState({
     temperature: DEFAULT_TEMPERATURE,
     topk: DEFAULT_TOPK,
@@ -213,13 +257,15 @@ function App() {
   promptsRef.current = prompts;
   const listenerRef = useRef(listener);
   listenerRef.current = listener;
+  const voiceStatusRef = useRef(voiceStatus);
+  voiceStatusRef.current = voiceStatus;
 
   const applyVoiceToolCalls = useCallback((toolCalls: VoiceToolCall[]) => {
     if (!Array.isArray(toolCalls) || toolCalls.length === 0) return;
     setPrompts(prev => {
       let next = [...prev];
       for (const call of toolCalls) {
-        const text = (call.params?.text || '').trim();
+        const text = titleCasePrompt((call.params?.text || '').trim());
         if (!text) continue;
 
         if (call.tool === 'removeBubble') {
@@ -342,9 +388,14 @@ function App() {
       }
       if (state.voiceStatus !== undefined) {
         setVoiceStatus(state.voiceStatus);
+        if (state.voiceStatus === 'done' || state.voiceStatus === 'error' || state.voiceStatus === 'idle') {
+          setVoiceTranscript('');
+        }
       }
       if (state.voiceTranscript !== undefined) {
-        setVoiceTranscript(state.voiceTranscript || '');
+        const nextVoiceStatus = state.voiceStatus ?? voiceStatusRef.current;
+        const voiceActive = nextVoiceStatus === 'listening' || nextVoiceStatus === 'processing' || nextVoiceStatus === 'thinking';
+        setVoiceTranscript(voiceActive ? (state.voiceTranscript || '') : '');
       }
       if (state.audioLevel !== undefined) {
         setAudioLevel(state.audioLevel);
@@ -391,6 +442,7 @@ function App() {
         });
       }
       if (state.openSettings !== undefined) {
+        setIsLibraryOpen(false);
         setIsSettingsOpen(!!state.openSettings);
       }
       if (state.voiceToolCalls !== undefined) {
@@ -431,7 +483,14 @@ function App() {
   // ─── UI callbacks ─────────────────────────────────────────────────
 
   const openSettings = () => {
+    setIsSettingsOpen(true);
+    setIsLibraryOpen(false);
     post({ type: 'openSettings' });
+  };
+
+  const openLibrary = () => {
+    setIsSettingsOpen(false);
+    setIsLibraryOpen(true);
   };
 
   const togglePlay = () => {
@@ -452,6 +511,40 @@ function App() {
 
   const handleBallSelect = useCallback((id: number | null) => {
     setSelectedBallId(id);
+  }, []);
+
+  const handleSaveState = useCallback(() => {
+    const savedAt = Date.now();
+    const labels = promptsRef.current
+      .map(prompt => prompt.label.trim())
+      .filter(Boolean)
+      .slice(0, 3);
+    const item: SavedColliderState = {
+      id: `${savedAt}-${Math.random().toString(36).slice(2, 8)}`,
+      name: labels.length > 0 ? labels.join(' + ') : 'Untitled set',
+      savedAt,
+      prompts: promptsRef.current.map(prompt => ({ ...prompt })),
+      listener: { ...listenerRef.current },
+    };
+    setSavedItems(prev => {
+      const next = [item, ...prev].slice(0, 24);
+      writeSavedLibrary(next);
+      return next;
+    });
+  }, []);
+
+  const handleLoadSavedState = useCallback((item: SavedColliderState) => {
+    const restoredPrompts = item.prompts.map(prompt => ({ ...prompt }));
+    setPrompts(restoredPrompts);
+    setListener({ ...item.listener });
+    setSelectedBallId(null);
+    setIsLibraryOpen(false);
+    setPhysicsResetKey(key => key + 1);
+
+    const maxId = restoredPrompts.reduce((max, prompt) => Math.max(max, prompt.id), -1);
+    const maxColor = restoredPrompts.reduce((max, prompt) => Math.max(max, prompt.colorIndex), -1);
+    nextIdRef.current = Math.max(nextIdRef.current, maxId + 1);
+    nextColorRef.current = Math.max(nextColorRef.current, maxColor + 1);
   }, []);
 
   const handlePromptAdd = useCallback((x: number, y: number) => {
@@ -480,7 +573,7 @@ function App() {
       id: nextIdRef.current++,
       x: pad + Math.random() * safeWidth,
       y: pad + Math.random() * safeHeight,
-      label,
+      label: titleCasePrompt(label),
       colorIndex: nextColorRef.current++,
     }]);
   }, []);
@@ -501,6 +594,7 @@ function App() {
 
   const handleFirstThrow = useCallback(() => setHasThrown(true), []);
   const canAddPrompt = prompts.length < MAX_ENGINE_PROMPTS;
+  const voiceActive = voiceStatus === 'listening' || voiceStatus === 'processing' || voiceStatus === 'thinking';
 
   // ─── Render ────────────────────────────────────────────────────────
 
@@ -516,7 +610,7 @@ function App() {
           volume={paramsState.volume}
           onVolumeChange={(v) => sendParamChange(5, v)}
           onReset={resetModel}
-          volumeSliderPosition="bottom"
+          volumeSliderPosition="top"
           model={modelName}
           showReset={false}
           showSpeaker
@@ -538,6 +632,18 @@ function App() {
             <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>upload</span>
           </IconButton>
         </Tooltip>
+        <Tooltip title="Save current prompt layout">
+          <IconButton
+            onClick={handleSaveState}
+            sx={{
+              width: 40,
+              height: 40,
+              ml: '8px',
+            }}
+          >
+            <Bookmark size={20} />
+          </IconButton>
+        </Tooltip>
       </div>
 
       {/* Settings: top right */}
@@ -548,11 +654,24 @@ function App() {
         zIndex: 10,
         display: 'flex',
         alignItems: 'center',
-        gap: '12px',
+        gap: '2px',
         color: 'var(--color-fg)',
       }}>
+        <Tooltip title="Library">
+          <IconButton
+            onClick={openLibrary}
+            variant="ghost"
+            sx={{
+              width: 40,
+              height: 40,
+            }}
+            title="Library"
+          >
+            <Library size={20} />
+          </IconButton>
+        </Tooltip>
         <IconButton
-          onClick={() => setIsSettingsOpen(true)}
+          onClick={openSettings}
           variant="ghost"
           sx={{
             width: 40,
@@ -592,6 +711,8 @@ function App() {
           onPromptAdd={handlePromptAdd}
           onPromptTextChange={handleTextChange}
           onPromptDelete={handlePromptDelete}
+          autoFocusNewPrompt={false}
+          physicsResetKey={physicsResetKey}
           physicsSpeed={physicsSpeed}
           onFirstThrow={handleFirstThrow}
           isPlaying={isPlaying}
@@ -633,7 +754,7 @@ function App() {
         </div>
       </aside>
 
-      {(voiceTranscript || voiceStatus === 'listening' || voiceStatus === 'processing' || voiceStatus === 'thinking') && (
+      {voiceActive && (voiceTranscript || voiceStatus === 'listening' || voiceStatus === 'processing' || voiceStatus === 'thinking') && (
         <div className="voice-chat-dock" aria-live="polite">
           {voiceTranscript ? (
             <div className="voice-message-row">
@@ -709,6 +830,62 @@ function App() {
         className={`dev-badge${debug ? ' debug-on' : ''}`}
         onClick={() => setDebug(d => !d)}
       >DEV</div> */}
+      <div
+        className={`settings-backdrop${isLibraryOpen ? ' open' : ''}`}
+        onClick={() => setIsLibraryOpen(false)}
+      />
+      <div
+        className={`settings-panel${isLibraryOpen ? ' open' : ''}`}
+        style={{ display: 'flex', flexDirection: 'column' }}
+      >
+        <div className="app-header-bar" style={{ justifyContent: 'space-between', flexShrink: 0 }}>
+          <span style={{
+            color: 'var(--color-fg)',
+            fontFamily: '"Google Sans"',
+            fontSize: '16px',
+            fontWeight: 500,
+            letterSpacing: '0.96px',
+            textTransform: 'uppercase' as const,
+          }}>
+            LIBRARY
+          </span>
+          <IconButton
+            onClick={() => setIsLibraryOpen(false)}
+            variant="ghost"
+            sx={{
+              width: 40,
+              height: 40,
+            }}
+          >
+            <span className="material-icons" style={{ fontSize: '20px' }}>close</span>
+          </IconButton>
+        </div>
+        <div className="library-panel-content">
+          {savedItems.length === 0 ? (
+            <div className="library-empty">No saved items yet</div>
+          ) : (
+            savedItems.map(item => (
+              <button
+                key={item.id}
+                type="button"
+                className="library-item"
+                onClick={() => handleLoadSavedState(item)}
+              >
+                <span className="library-item-title">{item.name}</span>
+                <span className="library-item-meta">
+                  {new Date(item.savedAt).toLocaleString([], {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                  })}
+                </span>
+              </button>
+            ))
+          )}
+        </div>
+      </div>
+
       <SettingsPanel
         open={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}

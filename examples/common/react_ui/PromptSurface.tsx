@@ -246,6 +246,8 @@ export function PromptSurface({
   active = true,
   collisions = false,
   listenerImage,
+  autoFocusNewPrompt = true,
+  physicsResetKey,
 }: {
   prompts: PromptNode[];
   listener: ListenerNode;
@@ -265,6 +267,8 @@ export function PromptSurface({
   active?: boolean;
   collisions?: boolean;
   listenerImage?: string;
+  autoFocusNewPrompt?: boolean;
+  physicsResetKey?: number;
 }) {
   config.collisions = collisions;
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -321,6 +325,10 @@ export function PromptSurface({
 
   // ─── Physics (billiard ball throw) ──────────────────────────────────
   const movingRef = useRef<Map<string, BallState>>(new Map());
+
+  useEffect(() => {
+    movingRef.current.clear();
+  }, [physicsResetKey]);
 
   // ─── lil-gui (debug only) ─────────────────────────────────────────
   // Force re-render when lil-gui changes config
@@ -918,7 +926,7 @@ export function PromptSurface({
               }}
             >
               <input
-                ref={!p.isAudio && isJustCreated ? (el) => {
+                ref={autoFocusNewPrompt && !p.isAudio && isJustCreated ? (el) => {
                   if (el) {
                     el.focus();
                     el.select();
